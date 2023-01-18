@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace MB6.ScreenFade
+namespace MB6.URP.Fade
 {
     public class SmoothStart3 : IEaseFunction
     {

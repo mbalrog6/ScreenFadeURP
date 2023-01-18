@@ -10,7 +10,7 @@ using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEngine;
 
-namespace MB6.ScreenFade
+namespace MB6.URP.Fade
 {
     [CustomEditor(typeof(ScreenFade))]
     public class ScreenFadeEditor : Editor

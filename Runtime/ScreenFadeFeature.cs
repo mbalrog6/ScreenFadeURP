@@ -3,7 +3,7 @@
 
 using UnityEngine.Rendering.Universal;
 
-namespace MB6.ScreenFade
+namespace MB6.URP.Fade
 {
     public class ScreenFadeFeature : ScriptableRendererFeature
     {

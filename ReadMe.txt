@@ -21,14 +21,21 @@ VR with Andrew
 
 NOTE: I used the #if UNITY_EDITOR #endif to wrap the Editor Inspector script so that the custom inspector will not conflict with your build process, if you are using assebly defs, since that causes the Editor Folder functionality to stop working in Unity and you would have to move those files out of the runtime compile assemblies otherwise. 
 
-This currenly was only tested and known to work for URP (Universial Render Pipeline.) 
+This currently was only tested and known to work for URP (Universial Render Pipeline.) 
+
+Unity Assembly Dependencies: 
+- Unity.RendererPipelines.Universal.Runtime
+- Unity.RendererPipelines.Core.Runtime
+
+WHAT IT DOES: 
+This package adds a URP Renderer Feature that will allow you to create a FadeIn and FadeOut Effect that does not require additional Geometry in the Scene to obscure the camera view. It just applies a shader that blends a mat material to the view after the Post Processing Pass. You can easily add some supplied easing functions to the Fade, or create your own that will work with it. It has a callback event to tie into if you have code that needs to be made aware of the fade completing. After setting it up you should only ever have to call the the public void ScreenFade(bool fade) function from the ScreenFade Component to activate the screen fade. 
 
 HOW TO USE: 
 1. You will need to find the URP Renderer and click "Add Render Feature"
 2. Make sure the "Render Pass Event" is set to "After Rendering Post Processing"
 3. Drag the "ScreenFade" Material located under the ScreenFade/FadeShader folder into the Material slot. (This is only used to make local copies from for the ScreenFader Script)
 4. Add the ScreenFade Component Script to a GameObject. (Typically added to a Camera)
-5. Drag the URP Renderer Scriptable Object to the Screen Fade Feature Dependency slot on the ScreenFade Component. 
+5. Expand the URP Renderer Scriptable Object, and Drag the ScreenFadeFeature Scriptable Object to the Screen Fade Feature Dependency slot on the ScreenFade Component. 
 6. While in the Editor you can click the "Add FadeIn Ease Function" and "Add FadeOut Ease Function" buttons to add an Ease Function. (If it is left blank then on Run it will instanciate a LinearEase Function from 0f to 1f for FadeIn, and a LinearEase from 1f to 0f for FadeOut.)
 7. You will need to be sure and set the Start and End Values so that the End Value of FadeIn Matches the Start Value of FadeOut. This will make sure that there is no visible jump to a different Alpha for the transition. You may need to expand the "Fade In Ease Function" and "Fade Out Ease Function" if you have added one of the custom Ease Functions. 
 
@@ -61,11 +68,3 @@ public interface IEaseFunction {public float Evaluate(float time);}
 Evaluate(float time) just needs to return a value from 0f to 1f.
 
 The Add Ease Function Buttons will populate with any classes that implement IEaseFunction in the current assembly domain.
-
-
-
-
-
-
-
-
