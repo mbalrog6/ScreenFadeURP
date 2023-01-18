@@ -1,0 +1,22 @@
+{
+  "name": "com.michael scott heinrichs.screenfadeurp",
+  "version": "1.0.0",
+  "displayName": "ScreenFadeURP",
+  "description": "This is a URP Only Renderer Feature that creates a ScreenFade that runs after Post Processing. It will most likely work on the latest LTS version.",
+  "unity": "2022.2",
+  "unityRelease": "1f1",
+  "licensesUrl": "https://example.com/licensing.html",
+  "dependencies": {
+    "com.unity.render-pipelines.universal": "14.0.4"
+  },
+  "keywords": [
+    "ScreenFade",
+    "URP",
+    "Universal", 
+    "Renderer Feature"
+  ],
+  "author": {
+    "name": "Scott Heinrichs",
+    "email": "mbalrog6@gmail.com"
+  }
+}
