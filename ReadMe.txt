@@ -19,7 +19,7 @@ VR with Andrew
 (https://www.youtube.com/watch?v=OGDOC4ACfSE)
 [WarpedImagination was inspired by this video for his tutorial)
 
-NOTE: I used the #if UNITY_EDITOR #endif to wrap the Editor Inspector script so that the custom inspector will not conflict with your build process, if you are using assebly defs, since that causes the Editor Folder functionality to stop working in Unity and you would have to move those files out of the runtime compile assemblies otherwise. 
+NOTE: I used the #if UNITY_EDITOR #endif to wrap the Editor Inspector script so that the custom inspector will not conflict with your build process, if you are using assembly defs, since that causes the Editor Folder functionality to stop working in Unity and you would have to move those files out of the runtime compile assemblies otherwise. 
 
 This currently was only tested and known to work for URP (Universial Render Pipeline.) 
 
@@ -33,9 +33,9 @@ This package adds a URP Renderer Feature that will allow you to create a FadeIn 
 HOW TO USE: 
 1. You will need to find the URP Renderer and click "Add Renderer Feature"
 2. Make sure the "Render Pass Event" is set to "After Rendering Post Processing"
-3. Drag the "ScreenFade" Material located under the ScreenFade/FadeShader folder into the Material slot. (This is only used to make local copies from for the ScreenFader Script)
+3. The Settings Material should auto-populate with the Material found in the FadeShader folder.
 4. Add the ScreenFade Component Script to a GameObject. (Typically added to a Camera)
-5. Expand the URP Renderer Scriptable Object to reveal child object, and Drag the ScreenFadeFeature Scriptable Object to the Screen Fade Feature Dependency slot on the ScreenFade Component. (You may need to save the scene to get the Renderer Object to update in the Project Hierarchy.)
+5. Click "Fix It" button in the ScreenFade Inspector window. (Or drag in the ScreenFadeFeature Renderer Feature found under the URP Renderer Object)
 6. While in the Editor you can click the "Add FadeIn Ease Function" and "Add FadeOut Ease Function" buttons to add an Ease Function. (If it is left blank then on Run it will instanciate a LinearEase Function from 0f to 1f for FadeIn, and a LinearEase from 1f to 0f for FadeOut.)
 7. You will need to be sure and set the Start and End Values so that the End Value of FadeIn Matches the Start Value of FadeOut. This will make sure that there is no visible jump to a different Alpha for the transition. You may need to expand the "Fade In Ease Function" and "Fade Out Ease Function" if you have added one of the custom Ease Functions. 
 

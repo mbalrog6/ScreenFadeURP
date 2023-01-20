@@ -2,7 +2,8 @@
     "name": "mb6.screenfadeurp.editor",
     "rootNamespace": "",
     "references": [
-        "GUID:4e4f5a20db5c9744b84c8ee2f57e61be"
+        "GUID:4e4f5a20db5c9744b84c8ee2f57e61be",
+        "GUID:15fc0a57446b3144c949da3e2b9737a9"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

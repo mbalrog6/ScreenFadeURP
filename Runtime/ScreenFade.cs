@@ -8,6 +8,7 @@ namespace MB6.URP.Fade
         private readonly int _shaderAlphaParameter = Shader.PropertyToID("_Alpha");
         private readonly int _shaderFadeColorParameter = Shader.PropertyToID("_FadeColor");
         public bool IsFadedIn { get; private set; }
+        public bool IsRendererFeatureSet => _screenFadeFeature != null;
 
         [Header("Dependancies")]
         [SerializeField]
@@ -21,6 +22,7 @@ namespace MB6.URP.Fade
         
         [SerializeField]
         [Tooltip("Default Duration of the Fade")]
+        [Range(0f, 4f)]
         private float _durationOfFade = 1f;
 
         [SerializeField] 
@@ -29,6 +31,7 @@ namespace MB6.URP.Fade
         
         [SerializeField] 
         [Tooltip("If Should Start Faded In is check this is the alpha value that is used.")] 
+        [Range(0f, 1f)]
         private float _startFadedAlpha = 1f;
 
         [Header("Ease Functions")]
@@ -49,6 +52,7 @@ namespace MB6.URP.Fade
         {
             _fadeMaterial = Instantiate(_screenFadeFeature.Settings.Material);
             _screenFadeFeature.Settings.RunTimeMaterial = _fadeMaterial;
+
             _fadeMaterial.SetColor(_shaderFadeColorParameter, _fadeToColor);
 
             if (!HasFadeInEase())
@@ -127,7 +131,12 @@ namespace MB6.URP.Fade
 
         public void SetFadeInEase(IEaseFunction easeFunction) => _fadeInEaseFunction = easeFunction;
         public void SetFadeOutEase(IEaseFunction easeFunction) => _fadeOutEaseFunction = easeFunction;
+
+        public void SetScreenFadeRendererFeature(ScreenFadeFeature screenFadeFeature) =>
+            _screenFadeFeature = screenFadeFeature;
+
         public bool HasFadeInEase() => _fadeInEaseFunction != null;
+
         public bool HasFadeOutEase() => _fadeOutEaseFunction != null;
     }
 }

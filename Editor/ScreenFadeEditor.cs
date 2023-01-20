@@ -9,6 +9,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 namespace MB6.URP.Fade
 {
@@ -21,15 +22,66 @@ namespace MB6.URP.Fade
         private bool _showFoldOutEaseFunctions;
         private bool _showEaseInFoldOut;
         private bool _showEaseOutFoldOut;
+        private bool _showRenderingFeatureMessage;
         private enum Fade {In, Out}
+
+        private int _defaultFontSize;
+        private int _buttonFontSize = 25;
+        private Color _bgColor;
+        private Color NeutralColorButton;
+        private Color ShouldPressColorButton;
+        private Color ErrorColorButton;
+        private Color ErrorLabelBackgroundColor;
 
         public void OnEnable()
         {
             _screenFade = (ScreenFade)target;
+
+            ColorUtility.TryParseHtmlString("#537C96", out NeutralColorButton);
+            ColorUtility.TryParseHtmlString("#117D52", out ShouldPressColorButton);
+            ColorUtility.TryParseHtmlString("#A1180E", out ErrorColorButton);
+            ColorUtility.TryParseHtmlString("#FF2F1C", out ErrorLabelBackgroundColor);
         }
 
         public override void OnInspectorGUI()
         {
+            _defaultFontSize = GUI.skin.button.fontSize;
+
+            if (!_screenFade.IsRendererFeatureSet)
+            {
+                _bgColor = GUI.backgroundColor;
+                GUI.backgroundColor = ShouldPressColorButton;
+                GUI.skin.button.fontSize = 17;
+                if (GUILayout.Button("Fix Now!", GUILayout.MinHeight(40f)))
+                {
+                    var result = GetScreenFadeFeature();
+                    if (result == null)
+                    {
+                        Debug.LogWarning("No ScreenFadeRendererFeature was found. " +
+                                         "Make sure the ScreenFade Rendering Feature is added to your URP Renderer." +
+                                         "Cannot auto-fix this until you add the Renderer Feature.");
+                        _showRenderingFeatureMessage = true;
+                    }
+                    else
+                    {
+                        _screenFade.SetScreenFadeRendererFeature(result);
+                        _showRenderingFeatureMessage = false;
+                    }
+                }
+                GUI.backgroundColor = _bgColor;
+                GUI.skin.button.fontSize = _defaultFontSize;
+
+                if (_showRenderingFeatureMessage)
+                {
+                    _bgColor = GUI.backgroundColor;
+                    GUI.backgroundColor = ErrorLabelBackgroundColor;
+                    GUILayout.TextArea("- No ScreenFadeFeature was found.\n\n" +
+                                       "- Make sure the ScreenFade Rendering Feature is added to your URP Renderer.\n\n" +
+                                       "- Cannot auto-fix this until you add the Renderer Feature.");
+                    GUI.backgroundColor = _bgColor;
+                }
+            }
+            
             base.OnInspectorGUI();
             GUILayout.Space(10f);
 
@@ -37,30 +89,45 @@ namespace MB6.URP.Fade
             {
                 GUILayout.Space(10f);
 
-                if (GUILayout.Button("Test Fade"))
+                _bgColor = GUI.color;
+                GUI.color = NeutralColorButton;
+                GUI.skin.button.fontSize = 30;
+                if (GUILayout.Button("Test Fade", GUILayout.MinHeight(50f)))
                 {
                     _screenFade.Fade(!_screenFade.IsFadedIn);
                 }
+                GUI.skin.button.fontSize = _defaultFontSize;
+                GUI.color = _bgColor;
 
                 return;
             }
 
             if (_screenFade.HasFadeInEase())
             {
-                if (GUILayout.Button("Remove FadeIn Ease Function"))
+                _bgColor = GUI.backgroundColor;
+                GUI.backgroundColor = NeutralColorButton;
+                GUI.skin.button.fontSize = 17;
+                if (GUILayout.Button("Remove FadeIn Ease Function", GUILayout.MinHeight(40f)))
                 {
                     _screenFade.SetFadeInEase(null);
                 }
+                GUI.backgroundColor = _bgColor;
+                GUI.skin.button.fontSize = _defaultFontSize;
             }
             else
             {
                 if (!_showFadeInEaseFunctions)
                 {
-                    if (GUILayout.Button("Add FadeIn Ease Function"))
+                    _bgColor = GUI.backgroundColor;
+                    GUI.backgroundColor = ShouldPressColorButton;
+                    GUI.skin.button.fontSize = 17;
+                    if (GUILayout.Button("Add FadeIn Ease Function", GUILayout.MinHeight(40f)))
                     {
                         _showFadeInEaseFunctions = true;
                         _showEaseInFoldOut = true;
                     }
+                    GUI.backgroundColor = _bgColor;
+                    GUI.skin.button.fontSize = _defaultFontSize;
                 }
                 else
                 {
@@ -77,20 +144,30 @@ namespace MB6.URP.Fade
 
             if (_screenFade.HasFadeOutEase())
             {
-                if (GUILayout.Button("Remove FadeOut Ease Function"))
+                _bgColor = GUI.backgroundColor;
+                GUI.backgroundColor = NeutralColorButton;
+                GUI.skin.button.fontSize = 17;
+                if (GUILayout.Button("Remove FadeOut Ease Function", GUILayout.MinHeight(40f)))
                 {
                     _screenFade.SetFadeOutEase(null);
                 }
+                GUI.backgroundColor = _bgColor;
+                GUI.skin.button.fontSize = _defaultFontSize;
             }
             else
             {
                 if (!_showFoldOutEaseFunctions)
                 {
-                    if (GUILayout.Button("Add FadeOut Ease Function"))
+                    _bgColor = GUI.backgroundColor;
+                    GUI.backgroundColor = ShouldPressColorButton;
+                    GUI.skin.button.fontSize = 17;
+                    if (GUILayout.Button("Add FadeOut Ease Function", GUILayout.MinHeight(40f)))
                     {
                         _showFoldOutEaseFunctions = true;
                         _showEaseOutFoldOut = true;
                     }
+                    GUI.backgroundColor = _bgColor;
+                    GUI.skin.button.fontSize = _defaultFontSize;
                 }
                 else
                 {
@@ -107,7 +184,11 @@ namespace MB6.URP.Fade
 
         private void ShowCancelButton(Fade fadeIn)
         {
-            if (GUILayout.Button("Cancel"))
+            GUI.skin.button.fontSize = 15;
+            _bgColor = GUI.backgroundColor;
+            GUI.backgroundColor = ErrorColorButton;
+            
+            if (GUILayout.Button("Cancel", GUILayout.MinHeight(25f)))
             {
                 if (fadeIn == Fade.In)
                 {
@@ -118,10 +199,14 @@ namespace MB6.URP.Fade
                     _showFoldOutEaseFunctions = false;
                 }
             }
+
+            GUI.backgroundColor = _bgColor;
+            GUI.skin.button.fontSize = _defaultFontSize;
         }
 
         private void ShowEaseFunctionsForFadeIn()
         {
+            GUI.skin.button.fontSize = 15;
             foreach (var easeFunction in _easeFunctions)
             {
                 if (GUILayout.Button(easeFunction.Name))
@@ -131,10 +216,12 @@ namespace MB6.URP.Fade
                     _showFadeInEaseFunctions = false;
                 }
             }
+            GUI.skin.button.fontSize = _defaultFontSize;
         }
 
         private void ShowEaseFunctionsForFadeOut()
         {
+            GUI.skin.button.fontSize = 15;
             foreach (var easeFunction in _easeFunctions)
             {
                 if (GUILayout.Button(easeFunction.Name))
@@ -144,6 +231,22 @@ namespace MB6.URP.Fade
                     _showFoldOutEaseFunctions = false;
                 }
             }
+            GUI.skin.button.fontSize = _defaultFontSize;
+        }
+
+        public ScreenFadeFeature GetScreenFadeFeature()
+        {
+            AssetDatabase.Refresh();
+            var resultingGuid = AssetDatabase.FindAssets("ScreenFadeFeature t:ScriptableRendererFeature",
+                new string[] { "Assets/" });
+            if (resultingGuid.Length > 0)
+            {
+                var rendererFeature = AssetDatabase.LoadAssetAtPath<ScriptableRendererFeature>(
+                    AssetDatabase.GUIDToAssetPath(resultingGuid[0])) as ScreenFadeFeature;
+                return rendererFeature;
+            }
+            
+            return null;
         }
 
         [DidReloadScripts]

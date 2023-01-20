@@ -1,6 +1,6 @@
 {
   "name": "com.mb6.screenfadeurp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "displayName": "ScreenFadeURP",
   "description": "This is a URP Only Renderer Feature that creates a ScreenFade that runs after Post Processing. It will most likely work on the latest LTS version.",
   "unity": "2022.2",
