@@ -98,7 +98,7 @@ public class CreateScreenFadeEditorWindow : EditorWindow
             
         // create screen fade feature
         ScreenFadeFeature screenFadeFeature = ScriptableObject.CreateInstance<ScreenFadeFeature>();
-        screenFadeFeature.name = "Screen Fade Feature";
+        screenFadeFeature.name = "ScreenFadeFeature";
 
         FadeSettings fadeSettings = new FadeSettings();
         fadeSettings.Material = material;
