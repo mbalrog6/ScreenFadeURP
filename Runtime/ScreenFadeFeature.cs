@@ -20,7 +20,7 @@ namespace MB6.URP.Fade
         public override void Create()
         {
             _renderPass = new ScreenFadePass(Settings);
-            
+
             #if UNITY_EDITOR
             var mat = GetMaterialForSettings();
             if (mat != null && Settings != null)
