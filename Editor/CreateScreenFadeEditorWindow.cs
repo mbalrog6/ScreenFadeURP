@@ -9,8 +9,9 @@ public class CreateScreenFadeEditorWindow : EditorWindow
 {
     private const string _menuName = "Assets/Create/MB6/Create URPScreenFade";
     private AssetUtility _util;
-    private RendererElementList _rendererElementList;
-    
+    private RendererDetailsList _rendererDetailsList;
+
+    private Color ShouldPressColorButton;
     private Color NeutralColorButton;
     private Color ErrorColorButton;
     private Color _bgColor;
@@ -27,15 +28,19 @@ public class CreateScreenFadeEditorWindow : EditorWindow
     {
         if (_util == null)
         {
+            ColorUtility.TryParseHtmlString("#117D52", out ShouldPressColorButton);
             ColorUtility.TryParseHtmlString("#537C96", out NeutralColorButton);
             ColorUtility.TryParseHtmlString("#A1180E", out ErrorColorButton);
             
             _util = new AssetUtility();
-            _rendererElementList = new RendererElementList();
+            _rendererDetailsList = new RendererDetailsList();
             
             _util.RefreshURPRendererAssets();
-            _util.FindURPRendererPaths(out _rendererElementList);
+            _util.FindURPRendererPaths(out _rendererDetailsList);
         }
+
+        string currentPipeline = "";
+        float buttonSize;
         
         GUILayout.Space(30f);
 
@@ -56,15 +61,38 @@ public class CreateScreenFadeEditorWindow : EditorWindow
         defaultFontSize = GUI.skin.button.fontSize;
         GUI.skin.button.fontSize = 17;
 
-        if (_rendererElementList.Count > 0)
+        if (_rendererDetailsList.Count > 0)
         {
-            foreach (var renderer in _rendererElementList)
+            foreach (var renderer in _rendererDetailsList)
             {
-                if (GUILayout.Button(renderer.Name, GUILayout.MinHeight(40f)))
+                if (currentPipeline != renderer.RenderPipelineName)
                 {
-                    CreateFeature(renderer.Path);
+                    currentPipeline = renderer.RenderPipelineName;
+                    GUILayout.Space(8);
+                    if (renderer.IsOnDefaultPipeline)
+                    {
+                        GUILayout.Label($"Default Pipeline: {currentPipeline}");
+                    }
+                    else
+                    {
+                        GUILayout.Label($"Pipeline: {currentPipeline}");
+                    }
+                    GUILayout.Space(8);
+                }
+
+                GUI.backgroundColor = NeutralColorButton;
+                buttonSize = 25f;
+                if (renderer.IsDefaultRendererInPipeline && renderer.IsOnDefaultPipeline)
+                {
+                    GUI.backgroundColor = ShouldPressColorButton;
+                    buttonSize = 40f;
+                }
+                if (GUILayout.Button(renderer.Name, GUILayout.MinHeight(buttonSize)))
+                {
+                    CreateFeature(renderer.Name);
                     Close();
                 }
+                
             }
         }
         else
@@ -82,12 +110,17 @@ public class CreateScreenFadeEditorWindow : EditorWindow
         GUI.backgroundColor = _bgColor;
     }
 
-    private void CreateFeature(string assetPath)
+    private void CreateFeature(string assetName)
     {
-        UniversalRendererData rendererData = AssetDatabase.LoadAssetAtPath<UniversalRendererData>(assetPath);
+        var guid = AssetDatabase.FindAssets(assetName + " t:UniversalRendererData", new string[] {"Assets/"});
+        if (guid == null) return;
+
+        var asset = AssetDatabase.GUIDToAssetPath(guid[0]);
+        UniversalRendererData rendererData = AssetDatabase.LoadAssetAtPath<UniversalRendererData>(asset);
 
         // collect material
-        string[] materialGuids = AssetDatabase.FindAssets("ScreenFade t:Material");
+        string[] materialGuids = AssetDatabase.FindAssets("ScreenFade t:Material", 
+            new string[] {"Assets/", "Packages/com.mb6.screenfadeurp/Runtime/"});
         if (materialGuids == null || materialGuids.Length == 0)
         {
             Debug.LogError("No Screen Fade material found");

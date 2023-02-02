@@ -35,7 +35,7 @@ namespace MB6.URP.Fade
         private Color ErrorLabelBackgroundColor;
 
         private AssetUtility util;
-        private ScreenFadeFeatureList _screenFadeFeatureList;
+        private RendererDetailsList _rendererDetailsList;
 
         public void OnEnable()
         {
@@ -47,7 +47,7 @@ namespace MB6.URP.Fade
             ColorUtility.TryParseHtmlString("#FF2F1C", out ErrorLabelBackgroundColor);
             
             util = new AssetUtility();
-            _screenFadeFeatureList = new ScreenFadeFeatureList();
+            _rendererDetailsList = new RendererDetailsList();
         }
 
         public override void OnInspectorGUI()
@@ -66,10 +66,10 @@ namespace MB6.URP.Fade
                     // make sure Renderers have all SubAssets Imported/Saved and are available. 
                     util.RefreshURPRendererAssets();
                     // retrieve all the relavent data about the ScreenFadeFeatures and populate the list.
-                    util.FindScreenFadeFeatures(out _screenFadeFeatureList);
+                    util.FindScreenFadeFeatures(out _rendererDetailsList);
 
                     // No ScreenFadeFeature was found on any URP Renderer
-                    if (_screenFadeFeatureList.Count <= 0)
+                    if (_rendererDetailsList.Count <= 0)
                     {
                         _showRenderingFeatureMessage = true;
                         _debugWarning = "No ScreenFadeRendererFeature was found. " +
@@ -79,7 +79,7 @@ namespace MB6.URP.Fade
                     }
 
                     // ScreenFadeFeature were found but none of them were on the currently set Default Renderer
-                    if (_screenFadeFeatureList.DefaultFeature == null && _screenFadeFeatureList.Count > 0)
+                    if (_rendererDetailsList.HasFeatureOnDefaultPipeline == false && _rendererDetailsList.Count > 0)
                     {
                         _debugWarning =
                             "ScreenFadeFeatures were found, but none of them were on the Default Renderer. " +
@@ -91,14 +91,15 @@ namespace MB6.URP.Fade
                     }
 
                     // The only options is on the current Default Renderer and it is a URP Renderer So set it.
-                    if (_screenFadeFeatureList.Count == 1 && _screenFadeFeatureList.DefaultFeature != null)
+                    if (_rendererDetailsList.Count == 1 && _rendererDetailsList.HasFeatureOnDefaultPipeline)
                     {
-                        _screenFade.SetScreenFadeRendererFeature(_screenFadeFeatureList.DefaultFeature.Feature);
+                        _screenFade.SetScreenFadeRendererFeature(_rendererDetailsList[0].FadeFeature);
                         _showRenderingFeatureMessage = false;
+                        _showFeatureButtons = false;
                     }
 
                     // ScreenFadeFeatures were found.
-                    if (_screenFadeFeatureList.Count > 0)
+                    if (_rendererDetailsList.Count > 1)
                     {
                         _showFeatureButtons = true;
                     }
@@ -112,29 +113,41 @@ namespace MB6.URP.Fade
                 _bgColor = GUI.backgroundColor;
                 
                 GUILayout.Label("Select Renderer For this ScreenFade Script");
+                GUILayout.Space(8);
                 
                 GUI.backgroundColor = ShouldPressColorButton;
                 GUI.skin.button.fontSize = 17;
                 
-                if (_screenFadeFeatureList.DefaultFeature != null)
+                if (_rendererDetailsList.FeatureSetDefaultRendererForDefaultPipeline)
                 {
-                    if (GUILayout.Button(_screenFadeFeatureList.DefaultFeature.Renderer, GUILayout.MinHeight(40f)))
+                    GUILayout.Label($"Default RenderPipeline: {_rendererDetailsList.GetDefault().RenderPipelineName}");
+                    GUILayout.Space(8);
+                    if (GUILayout.Button(_rendererDetailsList.GetDefault().Name, GUILayout.MinHeight(40f)))
                     {
-                        _screenFade.SetScreenFadeRendererFeature(_screenFadeFeatureList.DefaultFeature.Feature);
+                        _screenFade.SetScreenFadeRendererFeature(_rendererDetailsList.GetDefault().FadeFeature);
                         _showRenderingFeatureMessage = false;
                         _showFeatureButtons = false;
+                        GUILayout.Space(8);
                     }
                 }
                 
                 GUI.backgroundColor = NeutralColorButton;
-                    
-                foreach (var screenFade in _screenFadeFeatureList)
+
+                string currentPipeline = "";
+                foreach (var screenFade in _rendererDetailsList)
                 {
-                    if (screenFade == _screenFadeFeatureList.DefaultFeature) continue;
-                        
-                    if (GUILayout.Button(screenFade.Renderer))
+                    if (screenFade == _rendererDetailsList.GetDefault()) continue;
+
+                    if (currentPipeline != screenFade.RenderPipelineName)
                     {
-                        _screenFade.SetScreenFadeRendererFeature(screenFade.Feature);
+                        GUILayout.Space(8);
+                        currentPipeline = screenFade.RenderPipelineName;
+                        GUILayout.Label(currentPipeline);
+                        GUILayout.Space(8);
+                    }
+                    if (GUILayout.Button(screenFade.Name))
+                    {
+                        _screenFade.SetScreenFadeRendererFeature(screenFade.FadeFeature);
                         _showRenderingFeatureMessage = false;
                         _showFeatureButtons = false;
                     }
@@ -142,6 +155,7 @@ namespace MB6.URP.Fade
                 
                 GUI.backgroundColor = ErrorColorButton;
                 
+                GUILayout.Space(8);
                 if (GUILayout.Button("Cancel"))
                 {
                     _showRenderingFeatureMessage = false;
@@ -284,6 +298,8 @@ namespace MB6.URP.Fade
         private void ShowEaseFunctionsForFadeIn()
         {
             GUI.skin.button.fontSize = 15;
+            _bgColor = GUI.backgroundColor;
+            GUI.backgroundColor = NeutralColorButton;
             foreach (var easeFunction in _easeFunctions)
             {
                 if (GUILayout.Button(easeFunction.Name))
@@ -294,11 +310,14 @@ namespace MB6.URP.Fade
                 }
             }
             GUI.skin.button.fontSize = _defaultFontSize;
+            GUI.backgroundColor = _bgColor;
         }
 
         private void ShowEaseFunctionsForFadeOut()
         {
             GUI.skin.button.fontSize = 15;
+            _bgColor = GUI.backgroundColor;
+            GUI.backgroundColor = NeutralColorButton;
             foreach (var easeFunction in _easeFunctions)
             {
                 if (GUILayout.Button(easeFunction.Name))
@@ -309,6 +328,7 @@ namespace MB6.URP.Fade
                 }
             }
             GUI.skin.button.fontSize = _defaultFontSize;
+            GUI.backgroundColor = _bgColor;
         }
 
         [DidReloadScripts]
