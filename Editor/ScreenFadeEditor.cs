@@ -88,6 +88,7 @@ namespace MB6.URP.Fade
                             "GraphicsSetting's Default";
                         Debug.LogWarning(_debugWarning);
                         _showRenderingFeatureMessage = true;
+                        _showFeatureButtons = true;
                     }
 
                     // The only options is on the current Default Renderer and it is a URP Renderer So set it.
